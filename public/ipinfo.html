@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Heatmaps</title>
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        height: 600px;
+      }
+      #floating-panel {
+        position: absolute;
+        top: 10px;
+        left: 25%;
+        z-index: 5;
+        background-color: #fff;
+        padding: 5px;
+        border: 1px solid #999;
+        text-align: center;
+        font-family: 'Roboto','sans-serif';
+        line-height: 30px;
+        padding-left: 10px;
+      }
+      #floating-panel {
+        background-color: #fff;
+        border: 1px solid #999;
+        left: 25%;
+        padding: 5px;
+        position: absolute;
+        top: 10px;
+        z-index: 5;
+      }
+    </style>
+    
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-2">
+          <div class="container">
+            <div class="btn-group-vertical align-center">
+              <button type="button" class="btn btn-default" onclick="toggleHeatmap()">Toggle Heatmap</button>
+              <button type="button" class="btn btn-default" onclick="changeGradient()">Change gradient</button>
+              <button type="button" class="btn btn-default" onclick="changeRadius()">Change radius</button>
+              <button type="button" class="btn btn-default" onclick="changeOpacity()">Change opacity</button>
+            </div>
+          </div>
+               
+          <div>
+            <form>
+              <label>Paste IP addresses <br />(one IP per line):</label>
+              <textarea name="ips" id="ips" cols="30" rows="10" class="form-control"></textarea>
+              <button id="generateHeatMap" class="btn btn-create">Generate Heap Map!</button>
+              <img src="http://www.ajaxload.info/images/exemples/20.gif" alt="Loading..." class="loading" style="display: none" />
+              <tt id="status"></tt>
+            </form>
+          </div>
+        </div>
+        <div class="col-md-10">
+          <div id="map"></div>
+          
+        </div>
+      </div>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script>
+
+      var map, heatmap, points = [];
+      
+      function initMap() {        
+        map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 2,
+          center: {lat: 20, lng: 0},
+          mapTypeId: google.maps.MapTypeId.ROADMAP  // http://www.w3schools.com/googleAPI/ref_maptypeid.asp
+        });     
+        
+      }
+      
+      function toggleHeatmap() {
+        heatmap.setMap(heatmap.getMap() ? null : map);
+      }
+      
+      function changeGradient() {
+        var gradient = [
+          'rgba(0, 255, 255, 0)',
+          'rgba(0, 255, 255, 1)',
+          'rgba(0, 191, 255, 1)',
+          'rgba(0, 127, 255, 1)',
+          'rgba(0, 63, 255, 1)',
+          'rgba(0, 0, 255, 1)',
+          'rgba(0, 0, 223, 1)',
+          'rgba(0, 0, 191, 1)',
+          'rgba(0, 0, 159, 1)',
+          'rgba(0, 0, 127, 1)',
+          'rgba(63, 0, 91, 1)',
+          'rgba(127, 0, 63, 1)',
+          'rgba(191, 0, 31, 1)',
+          'rgba(255, 0, 0, 1)'
+        ]
+        heatmap.set('gradient', heatmap.get('gradient') ? null : gradient);
+      }
+      
+      function changeRadius() {
+        heatmap.set('radius', heatmap.get('radius') ? null : 20);
+      }
+      
+      function changeOpacity() {
+        heatmap.set('opacity', heatmap.get('opacity') ? null : 0.2);
+      }
+      
+      function getPoints() {
+        var elements = $('#ips').val().split('\n');
+        var ipAddresses = elements; //.filter(function (index) { return elements[index] != "undefined" && elements[index].indexOf(".") != -1; });
+        console.log("Parsed IP addresses", ipAddresses);
+          
+        points = [];
+        
+        var looper = $.Deferred().resolve();
+        
+        $.each(ipAddresses, function(i, data) {
+          $(".loading").show();
+          
+          looper = looper.then(function() {
+            var status = "Getting location " + (i+1) + "/" + ipAddresses.length + " (" + ipAddresses[i] + ")";
+            console.log(status);
+            $("#status").text(status);
+              
+              return $.ajax({
+                  data: {
+                      json: JSON.stringify(data),
+                      delay: 3
+                  },
+                  method: 'get',
+                  url: 'http://ipinfo.io/' + ipAddresses[i],
+                  dataType: 'json'
+              }).done(function(response) {
+                var latLng = response.loc.split(',');
+                points.push(new google.maps.LatLng(parseFloat(latLng[0]), parseFloat(latLng[1])));
+                
+                if (i === ipAddresses.length-1) {
+                  heatmap = new google.maps.visualization.HeatmapLayer({
+                    data: points,
+                    map: map
+                  });
+                  heatmap.setMap(map);
+                  console.log("done");
+                  $("#status").text("done");
+                  $(".loading").hide();
+                  return false;
+                }
+              });
+          });
+        });
+        
+        
+      }
+      
+      $("#generateHeatMap").click(function () {
+        getPoints();
+        return false;
+      });
+
+    </script>
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?libraries=visualization&callback=initMap">
+    </script>
+	   
+  </body>
+</html>

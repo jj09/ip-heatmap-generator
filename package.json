@@ -1,0 +1,22 @@
+{
+  "name": "ip-heatmap-generator",
+  "version": "0.0.1",
+  "description": "Generates heat map based on IP addresses",
+  "main": "server.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "keywords": [
+    "ip",
+    "heatmap",
+    "google",
+    "maps"
+  ],
+  "author": "jj",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.13.3",
+    "express": "^4.13.3",
+    "geoip-lite": "^1.1.6"
+  }
+}
