@@ -167,6 +167,10 @@
         //   });
         // });
         
+        console.log("generating heatmap...");
+        $("#status").text("generating heatmap...");
+        $(".loading").show();
+        
         $.ajax({
             url: '/api/geoIp',
             type: 'post',
