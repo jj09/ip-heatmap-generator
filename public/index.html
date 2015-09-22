@@ -122,51 +122,7 @@
         heatmap.set('opacity', heatmap.get('opacity') ? null : 0.2);
       }
       
-      function getPoints() {
-        // var elements = $('#ips').val().split('\n');
-        // var ipAddresses = elements; //.filter(function (index) { return elements[index] != "undefined" && elements[index].indexOf(".") != -1; });
-        // console.log("Parsed IP addresses", ipAddresses);
-          
-        // points = [];
-        
-        // var looper = $.Deferred().resolve();
-        
-        // $.each(ipAddresses, function(i, data) {
-        //   $(".loading").show();
-          
-        //   looper = looper.then(function() {
-        //     var status = "Getting location " + (i+1) + "/" + ipAddresses.length + " (" + ipAddresses[i] + ")";
-        //     console.log(status);
-        //     $("#status").text(status);
-              
-        //       return $.ajax({
-        //           data: {
-        //               json: JSON.stringify(data),
-        //               delay: 3
-        //           },
-        //           method: 'get',
-        //           url: '/api/geoIp/' + ipAddresses[i],
-        //           dataType: 'json'
-        //       }).done(function(response) {
-        //         var latLng = response;
-        //         console.log(response);
-        //         points.push(new google.maps.LatLng(parseFloat(latLng[0]), parseFloat(latLng[1])));
-                
-        //         if (i === ipAddresses.length-1) {
-        //           heatmap = new google.maps.visualization.HeatmapLayer({
-        //             data: points,
-        //             map: map
-        //           });
-        //           heatmap.setMap(map);
-        //           console.log("done");
-        //           $("#status").text("done");
-        //           $(".loading").hide();
-        //           return false;
-        //         }
-        //       });
-        //   });
-        // });
-        
+      function getPoints() {        
         console.log("generating heatmap...");
         $("#status").text("generating heatmap...");
         $(".loading").show();
@@ -182,14 +138,14 @@
                   points.push(new google.maps.LatLng(parseFloat(data[index][0]), parseFloat(data[index][1])));
                 } 
               }
-                heatmap = new google.maps.visualization.HeatmapLayer({
-                  data: points,
-                  map: map
-                });
-                heatmap.setMap(map);
-                console.log("done");
-                $("#status").text("done");
-                $(".loading").hide();
+              heatmap = new google.maps.visualization.HeatmapLayer({
+                data: points,
+                map: map
+              });
+              heatmap.setMap(map);
+              console.log("done");
+              $("#status").text("done");
+              $(".loading").hide();
             },
             data: { ips: $('#ips').val().split('\n') }
         });
